@@ -1,15 +1,15 @@
-import { useState } from "react"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Loader2, Sparkles, FileText, Pencil } from "lucide-react"
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Loader2, Sparkles, FileText, Pencil } from "lucide-react";
 
 interface TourInputProps {
-  onExtract: (text: string) => void
-  isLoading: boolean
-  error: string | null
-  retryCountdown?: number | null
-  collapsed?: boolean
-  onExpand?: () => void
+  onExtract: (text: string) => void;
+  isLoading: boolean;
+  error: string | null;
+  retryCountdown?: number | null;
+  collapsed?: boolean;
+  onExpand?: () => void;
 }
 
 export function TourInput({
@@ -20,13 +20,13 @@ export function TourInput({
   collapsed,
   onExpand,
 }: TourInputProps) {
-  const [text, setText] = useState("")
+  const [text, setText] = useState("");
 
   const handleSubmit = () => {
     if (text.trim()) {
-      onExtract(text.trim())
+      onExtract(text.trim());
     }
-  }
+  };
 
   if (collapsed && text) {
     return (
@@ -40,7 +40,7 @@ export function TourInput({
         </span>
         <Pencil className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
       </button>
-    )
+    );
   }
 
   return (
@@ -57,7 +57,7 @@ export function TourInput({
           placeholder="Paste the tour title, description, and details here..."
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="min-h-36 rounded-xl border-border bg-card text-foreground placeholder:text-muted-foreground/60 focus:border-ring"
+          className="min-h-36 rounded-xl border-border bg-background/90 placeholder:text-muted-foreground focus:border-ring"
         />
       </div>
 
@@ -90,5 +90,5 @@ export function TourInput({
         )}
       </Button>
     </div>
-  )
+  );
 }

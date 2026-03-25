@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react"
-import { searchPixabay } from "@/lib/api/pixabay"
-import { searchUnsplash } from "@/lib/api/unsplash"
+import { searchImages } from "@/lib/api/worker"
 import { getEnabledSources } from "@/lib/image-source"
+import { CONFIG } from "@/lib/config"
 import type { ImageSearchResult, ImageSourceFilter, Keyword, NormalizedImage } from "@/types"
 
 type SearchStatus = "idle" | "loading" | "done"
@@ -22,17 +22,13 @@ export function useImageSearch() {
   const searchBySource = useCallback(
     async (query: string, page = 1): Promise<ImageSearchResult[]> => {
       const enabledSources = getEnabledSources(sourceFilterRef.current)
-      const searches = enabledSources.map((source) =>
-        source === "pixabay"
-          ? searchPixabay(query, page)
-          : searchUnsplash(query, page)
+      const { results } = await searchImages(
+        query,
+        page,
+        enabledSources,
+        CONFIG.imagesPerPage
       )
-
-      const settledResults = await Promise.allSettled(searches)
-
-      return settledResults.flatMap((result) =>
-        result.status === "fulfilled" ? [result.value] : []
-      )
+      return results
     },
     []
   )

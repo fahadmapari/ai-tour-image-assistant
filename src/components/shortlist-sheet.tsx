@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react"
-import { BookmarkCheck, Save, Trash2, X } from "lucide-react"
+import { BookmarkCheck, Download, Loader2, Save, Trash2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { downloadImage, downloadAllImages } from "@/lib/download"
 import type { NormalizedImage } from "@/types"
 
 interface ShortlistSheetProps {
@@ -28,6 +29,9 @@ export function ShortlistSheet({
   onSave,
 }: ShortlistSheetProps) {
   const [groupName, setGroupName] = useState("")
+  const [downloadingAll, setDownloadingAll] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState("")
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set())
 
   const imageLabel = useMemo(() => {
     if (images.length === 1) return "1 image"
@@ -37,6 +41,32 @@ export function ShortlistSheet({
   const handleSave = () => {
     const didSave = onSave(groupName)
     if (didSave) setGroupName("")
+  }
+
+  const handleDownloadOne = async (image: NormalizedImage) => {
+    setDownloadingIds((prev) => new Set(prev).add(image.id))
+    try {
+      await downloadImage(image)
+    } finally {
+      setDownloadingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(image.id)
+        return next
+      })
+    }
+  }
+
+  const handleDownloadAll = async () => {
+    setDownloadingAll(true)
+    setDownloadProgress(`0 / ${images.length}`)
+    try {
+      await downloadAllImages(images, (completed, total) => {
+        setDownloadProgress(`${completed} / ${total}`)
+      })
+    } finally {
+      setDownloadingAll(false)
+      setDownloadProgress("")
+    }
   }
 
   return (
@@ -101,10 +131,25 @@ export function ShortlistSheet({
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                       Ready to save
                     </p>
-                    <Button variant="ghost" size="sm" onClick={onClear}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Clear
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleDownloadAll}
+                        disabled={downloadingAll}
+                      >
+                        {downloadingAll ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5" />
+                        )}
+                        {downloadingAll ? downloadProgress : "Download All"}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={onClear}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Clear
+                      </Button>
+                    </div>
                   </div>
                   <div className="grid max-h-[calc(100vh-13.5rem)] grid-cols-2 gap-3 overflow-y-auto px-5 pb-5">
                     {images.map((image) => (
@@ -131,14 +176,29 @@ export function ShortlistSheet({
                             <span className="truncate text-xs font-medium">
                               {image.photographer}
                             </span>
-                            <Button
-                              variant="outline"
-                              size="icon-sm"
-                              onClick={() => onRemove(image)}
-                              aria-label="Remove from shortlist"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                            <div className="flex gap-1">
+                              <Button
+                                variant="outline"
+                                size="icon-sm"
+                                onClick={() => handleDownloadOne(image)}
+                                disabled={downloadingIds.has(image.id)}
+                                aria-label="Download image"
+                              >
+                                {downloadingIds.has(image.id) ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Download className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon-sm"
+                                onClick={() => onRemove(image)}
+                                aria-label="Remove from shortlist"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>

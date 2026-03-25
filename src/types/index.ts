@@ -53,6 +53,7 @@ export interface UnsplashPhoto {
   links: {
     html: string
     download: string
+    download_location: string
   }
   user: {
     username: string
@@ -73,6 +74,7 @@ export interface NormalizedImage {
   id: string
   thumbnailUrl: string
   fullUrl: string
+  downloadUrl: string
   sourceUrl: string
   source: ImageSource
   photographer: string
@@ -81,6 +83,7 @@ export interface NormalizedImage {
   height: number
   tags: string[]
   description: string | null
+  unsplashDownloadLocation?: string
 }
 
 export interface SavedImageGroup {

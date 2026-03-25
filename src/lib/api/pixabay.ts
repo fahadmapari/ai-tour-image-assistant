@@ -26,6 +26,7 @@ export async function searchPixabay(
     id: `px-${hit.id}`,
     thumbnailUrl: hit.webformatURL,
     fullUrl: hit.largeImageURL,
+    downloadUrl: hit.largeImageURL,
     sourceUrl: hit.pageURL,
     source: "pixabay",
     photographer: hit.user,

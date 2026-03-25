@@ -9,7 +9,11 @@ export async function extractKeywords(text: string): Promise<WorkerResponse> {
   })
 
   if (!response.ok) {
-    const error = (await response.json()) as WorkerErrorResponse
+    const error = (await response.json()) as WorkerErrorResponse & { retryAfter?: number }
+    if (response.status === 429 || error.error === "rate_limited") {
+      const seconds = error.retryAfter ?? 60
+      throw new Error(`rate_limited:${seconds}`)
+    }
     throw new Error(error.error || "Failed to extract keywords")
   }
 

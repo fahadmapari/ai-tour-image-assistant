@@ -236,6 +236,7 @@ function App() {
                 onExtract={handleExtract}
                 isLoading={extraction.status === "loading"}
                 error={extraction.error}
+                retryCountdown={extraction.retryCountdown}
                 collapsed={hasKeywords && !tourExpanded}
                 onExpand={() => setTourExpanded(true)}
               />

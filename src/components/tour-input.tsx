@@ -7,6 +7,7 @@ interface TourInputProps {
   onExtract: (text: string) => void
   isLoading: boolean
   error: string | null
+  retryCountdown?: number | null
   collapsed?: boolean
   onExpand?: () => void
 }
@@ -15,6 +16,7 @@ export function TourInput({
   onExtract,
   isLoading,
   error,
+  retryCountdown,
   collapsed,
   onExpand,
 }: TourInputProps) {
@@ -61,7 +63,11 @@ export function TourInput({
 
       {error && (
         <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
-          {error}
+          {error.startsWith("rate_limited")
+            ? retryCountdown != null && retryCountdown > 0
+              ? `AI is experiencing high demand. Retry in ${retryCountdown}s.`
+              : "AI is experiencing high demand. You can retry now."
+            : error}
         </p>
       )}
 

@@ -1,5 +1,7 @@
-import { Bookmark, BookmarkCheck } from "lucide-react"
+import { useState } from "react"
+import { Bookmark, BookmarkCheck, Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { downloadImage } from "@/lib/download"
 import type { NormalizedImage } from "@/types"
 
 interface ImageCardProps {
@@ -15,6 +17,18 @@ export function ImageCard({
   onSelect,
   onToggleShortlist,
 }: ImageCardProps) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async (event: React.MouseEvent) => {
+    event.stopPropagation()
+    setDownloading(true)
+    try {
+      await downloadImage(image)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <button
       type="button"
@@ -28,7 +42,7 @@ export function ImageCard({
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute top-1.5 left-1.5 z-10">
+        <div className="absolute top-1.5 left-1.5 z-10 flex gap-1">
           <Button
             variant={isShortlisted ? "default" : "secondary"}
             size="icon-sm"
@@ -44,6 +58,19 @@ export function ImageCard({
               <BookmarkCheck className="h-3.5 w-3.5" />
             ) : (
               <Bookmark className="h-3.5 w-3.5" />
+            )}
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            onClick={handleDownload}
+            disabled={downloading}
+            aria-label="Download image"
+          >
+            {downloading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
             )}
           </Button>
         </div>

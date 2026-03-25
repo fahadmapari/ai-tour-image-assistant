@@ -1,6 +1,8 @@
-import { BookmarkCheck, CalendarDays, ExternalLink, FolderOpen, Trash2 } from "lucide-react"
+import { useState } from "react"
+import { BookmarkCheck, CalendarDays, Download, ExternalLink, FolderOpen, Loader2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { SavedImageGroup } from "@/types"
+import { downloadImage, downloadAllImages } from "@/lib/download"
+import type { NormalizedImage, SavedImageGroup } from "@/types"
 
 interface SavedImageGroupsProps {
   groups: SavedImageGroup[]
@@ -13,6 +15,35 @@ export function SavedImageGroups({
   onDeleteGroup,
   onOpenImage,
 }: SavedImageGroupsProps) {
+  const [downloadingGroupId, setDownloadingGroupId] = useState<string | null>(null)
+  const [groupProgress, setGroupProgress] = useState("")
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set())
+
+  const handleDownloadOne = async (image: NormalizedImage) => {
+    setDownloadingIds((prev) => new Set(prev).add(image.id))
+    try {
+      await downloadImage(image)
+    } finally {
+      setDownloadingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(image.id)
+        return next
+      })
+    }
+  }
+
+  const handleDownloadAll = async (group: SavedImageGroup) => {
+    setDownloadingGroupId(group.id)
+    setGroupProgress(`0 / ${group.images.length}`)
+    try {
+      await downloadAllImages(group.images, (completed, total) => {
+        setGroupProgress(`${completed} / ${total}`)
+      })
+    } finally {
+      setDownloadingGroupId(null)
+      setGroupProgress("")
+    }
+  }
   if (groups.length === 0) {
     return (
       <section className="mx-auto max-w-5xl px-6 py-14">
@@ -61,13 +92,27 @@ export function SavedImageGroups({
                   <span>{group.images.length} images</span>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => onDeleteGroup(group.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleDownloadAll(group)}
+                  disabled={downloadingGroupId === group.id}
+                >
+                  {downloadingGroupId === group.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  {downloadingGroupId === group.id ? groupProgress : "Download All"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => onDeleteGroup(group.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
@@ -91,15 +136,30 @@ export function SavedImageGroups({
                     <p className="line-clamp-2 text-xs text-muted-foreground">
                       {image.description || image.photographer}
                     </p>
-                    <a
-                      href={image.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-medium text-primary"
-                    >
-                      Open source
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                    <div className="flex items-center justify-between gap-2">
+                      <a
+                        href={image.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-primary"
+                      >
+                        Open source
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => handleDownloadOne(image)}
+                        disabled={downloadingIds.has(image.id)}
+                        aria-label="Download image"
+                      >
+                        {downloadingIds.has(image.id) ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

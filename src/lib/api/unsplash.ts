@@ -30,6 +30,7 @@ export async function searchUnsplash(
     id: `us-${photo.id}`,
     thumbnailUrl: photo.urls.small,
     fullUrl: photo.urls.regular,
+    downloadUrl: photo.urls.regular,
     sourceUrl: photo.links.html,
     source: "unsplash",
     photographer: photo.user.name,
@@ -38,6 +39,7 @@ export async function searchUnsplash(
     height: photo.height,
     tags: photo.alt_description?.split(" ") ?? [],
     description: photo.alt_description,
+    unsplashDownloadLocation: photo.links.download_location,
   }))
 
   return { images, total: data.total }

@@ -72,6 +72,17 @@ export default {
       return Response.json(parsed, { status: 200, headers })
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to extract keywords"
+
+      // Detect Gemini 429 rate limit and extract retry delay
+      if (message.includes("429") || message.includes("Too Many Requests") || message.includes("quota")) {
+        const retryMatch = message.match(/retryDelay["\s:]+(\d+)s/) || message.match(/retry in ([\d.]+)s/)
+        const retrySeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) : 60
+        return Response.json(
+          { error: "rate_limited", retryAfter: retrySeconds },
+          { status: 429, headers }
+        )
+      }
+
       return Response.json(
         { error: message },
         { status: 500, headers }

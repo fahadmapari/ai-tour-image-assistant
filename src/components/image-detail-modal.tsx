@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react"
+import { useEffect, useCallback, useState } from "react"
 import {
   X,
   ExternalLink,
@@ -8,8 +8,11 @@ import {
   FileText,
   Bookmark,
   BookmarkCheck,
+  Download,
+  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { downloadImage } from "@/lib/download"
 import type { NormalizedImage } from "@/types"
 
 interface ImageDetailModalProps {
@@ -17,6 +20,66 @@ interface ImageDetailModalProps {
   isShortlisted: boolean
   onClose: () => void
   onToggleShortlist: (image: NormalizedImage) => void
+}
+
+function ModalActions({
+  image,
+  isShortlisted,
+  onToggleShortlist,
+}: {
+  image: NormalizedImage
+  isShortlisted: boolean
+  onToggleShortlist: (image: NormalizedImage) => void
+}) {
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    try {
+      await downloadImage(image)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  return (
+    <div className="mt-auto space-y-3 pt-4">
+      <Button
+        variant={isShortlisted ? "secondary" : "outline"}
+        className="w-full"
+        onClick={() => onToggleShortlist(image)}
+      >
+        {isShortlisted ? (
+          <BookmarkCheck className="h-4 w-4" />
+        ) : (
+          <Bookmark className="h-4 w-4" />
+        )}
+        {isShortlisted ? "Shortlisted" : "Shortlist Image"}
+      </Button>
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={handleDownload}
+        disabled={downloading}
+      >
+        {downloading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="h-4 w-4" />
+        )}
+        {downloading ? "Downloading..." : "Download"}
+      </Button>
+      <a
+        href={image.sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-gradient flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
+      >
+        View on {image.source}
+        <ExternalLink className="h-3.5 w-3.5" />
+      </a>
+    </div>
+  )
 }
 
 export function ImageDetailModal({
@@ -152,29 +215,11 @@ export function ImageDetailModal({
             </div>
           )}
 
-          <div className="mt-auto space-y-3 pt-4">
-            <Button
-              variant={isShortlisted ? "secondary" : "outline"}
-              className="w-full"
-              onClick={() => onToggleShortlist(image)}
-            >
-              {isShortlisted ? (
-                <BookmarkCheck className="h-4 w-4" />
-              ) : (
-                <Bookmark className="h-4 w-4" />
-              )}
-              {isShortlisted ? "Shortlisted" : "Shortlist Image"}
-            </Button>
-            <a
-              href={image.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gradient flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white"
-            >
-              View on {image.source}
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
+          <ModalActions
+            image={image}
+            isShortlisted={isShortlisted}
+            onToggleShortlist={onToggleShortlist}
+          />
         </div>
       </div>
     </div>

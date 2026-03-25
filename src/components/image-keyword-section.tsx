@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ImageCard } from "./image-card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, Loader2 } from "lucide-react"
 import type { Keyword, NormalizedImage } from "@/types"
 
 interface ImageKeywordSectionProps {
@@ -72,16 +72,32 @@ export function ImageKeywordSection({
                 ))}
               </div>
               {hasMore && (
-                <div className="flex justify-center pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onLoadMore}
-                    disabled={isLoadingMore}
-                  >
-                    {isLoadingMore ? "Loading…" : "Load More"}
-                  </Button>
-                </div>
+                <>
+                  {isLoadingMore && (
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="aspect-4/3 w-full rounded-lg" />
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex justify-center pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={onLoadMore}
+                      disabled={isLoadingMore}
+                      className="cursor-pointer gap-2 rounded-full border-primary/20 px-6 text-primary shadow-sm transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-md"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading…
+                        </>
+                      ) : (
+                        "Load More"
+                      )}
+                    </Button>
+                  </div>
+                </>
               )}
             </>
           ) : (

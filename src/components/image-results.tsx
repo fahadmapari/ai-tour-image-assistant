@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { ImageKeywordSection } from "./image-keyword-section"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   getEnabledSources,
@@ -69,6 +70,24 @@ export function ImageResults({
   const filterImages = (images: NormalizedImage[] | undefined) =>
     images?.filter((image) => visibleSources.includes(image.source))
 
+  const renderKeywordSummary = (tierKeywords: Keyword[]) => (
+    <div className="flex flex-wrap gap-2">
+      {tierKeywords.map((keyword) => (
+        <Badge
+          key={keyword.id}
+          variant="outline"
+          className={
+            keyword.tier === 1
+              ? "h-auto rounded-lg border-tier-1/30 bg-tier-1-bg px-2.5 py-1 text-tier-1"
+              : "h-auto rounded-lg border-tier-2/30 bg-tier-2-bg px-2.5 py-1 text-tier-2"
+          }
+        >
+          {keyword.text}
+        </Badge>
+      ))}
+    </div>
+  )
+
   return (
     <div className="space-y-10 pt-2">
       <div className="space-y-3">
@@ -111,9 +130,12 @@ export function ImageResults({
 
       {tier1Keywords.length > 0 && (
         <div className="space-y-8">
-          <p className="text-xs font-medium text-tier-1">
-            Tier 1 — Direct Matches
-          </p>
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-tier-1">
+              Tier 1 - Direct Matches
+            </p>
+            {renderKeywordSummary(tier1Keywords)}
+          </div>
           {tier1Keywords.map((keyword) => (
             <ImageKeywordSection
               key={keyword.id}
@@ -141,26 +163,32 @@ export function ImageResults({
 
       {tier2Keywords.length > 0 && !tier2Searched && (
         <div className="space-y-4">
-          <p className="text-xs font-medium text-tier-2">
-            Tier 2 — Related Matches
-          </p>
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-10">
-          <p className="text-sm text-muted-foreground">
-            Didn't find any direct matches? Try related
-          </p>
-          <Button variant="outline" size="sm" onClick={onSearchTier2}>
-            <Search className="mr-2 h-3.5 w-3.5" />
-            Search Related
-          </Button>
-        </div>
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-tier-2">
+              Tier 2 - Related Matches
+            </p>
+            {renderKeywordSummary(tier2Keywords)}
+          </div>
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-10">
+            <p className="text-sm text-muted-foreground">
+              Didn't find any direct matches? Try related
+            </p>
+            <Button variant="outline" size="sm" onClick={onSearchTier2}>
+              <Search className="mr-2 h-3.5 w-3.5" />
+              Search Related
+            </Button>
+          </div>
         </div>
       )}
 
       {tier2Keywords.length > 0 && tier2Searched && (
         <div className="space-y-8">
-          <p className="text-xs font-medium text-tier-2">
-            Tier 2 — Related Matches
-          </p>
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-tier-2">
+              Tier 2 - Related Matches
+            </p>
+            {renderKeywordSummary(tier2Keywords)}
+          </div>
           {tier2Keywords.map((keyword) => (
             <ImageKeywordSection
               key={keyword.id}

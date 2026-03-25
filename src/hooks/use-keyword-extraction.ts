@@ -72,6 +72,13 @@ export function useKeywordExtraction() {
     setKeywords((prev) => prev.filter((k) => k.id !== id))
   }, [])
 
+  const setManualKeywords = useCallback((kws: Keyword[]) => {
+    setKeywords(kws)
+    setStatus("success")
+    setError(null)
+    clearCountdown()
+  }, [clearCountdown])
+
   const reset = useCallback(() => {
     setKeywords([])
     setStatus("idle")
@@ -79,5 +86,5 @@ export function useKeywordExtraction() {
     clearCountdown()
   }, [clearCountdown])
 
-  return { keywords, status, error, retryCountdown, extract, addKeyword, removeKeyword, reset }
+  return { keywords, status, error, retryCountdown, extract, addKeyword, removeKeyword, setManualKeywords, reset }
 }

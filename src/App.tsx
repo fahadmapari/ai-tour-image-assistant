@@ -12,6 +12,7 @@ import { useKeywordExtraction } from "@/hooks/use-keyword-extraction";
 import { useImageSearch } from "@/hooks/use-image-search";
 import type {
   ImageSourceFilter,
+  Keyword,
   KeywordTier,
   NormalizedImage,
   SavedImageGroup,
@@ -79,6 +80,14 @@ function App() {
     setInputExpanded(true);
     setActiveView("search");
     await extraction.extract(text);
+    setTourExpanded(false);
+  };
+
+  const handleManualKeywords = (keywords: Keyword[]) => {
+    imageSearch.reset();
+    setInputExpanded(true);
+    setActiveView("search");
+    extraction.setManualKeywords(keywords);
     setTourExpanded(false);
   };
 
@@ -243,6 +252,7 @@ function App() {
 
               <TourInput
                 onExtract={handleExtract}
+                onManualKeywords={handleManualKeywords}
                 isLoading={extraction.status === "loading"}
                 error={extraction.error}
                 retryCountdown={extraction.retryCountdown}

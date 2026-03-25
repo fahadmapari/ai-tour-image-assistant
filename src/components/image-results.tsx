@@ -5,12 +5,14 @@ interface ImageResultsProps {
   keywords: Keyword[]
   results: Map<string, NormalizedImage[]>
   isLoading: boolean
+  onSelectImage: (image: NormalizedImage) => void
 }
 
 export function ImageResults({
   keywords,
   results,
   isLoading,
+  onSelectImage,
 }: ImageResultsProps) {
   const tier1Keywords = keywords.filter((k) => k.tier === 1)
   const tier2Keywords = keywords.filter((k) => k.tier === 2)
@@ -28,6 +30,7 @@ export function ImageResults({
               keyword={keyword}
               images={results.get(keyword.id)}
               isLoading={isLoading}
+              onSelectImage={onSelectImage}
             />
           ))}
         </div>
@@ -48,6 +51,7 @@ export function ImageResults({
               keyword={keyword}
               images={results.get(keyword.id)}
               isLoading={isLoading}
+              onSelectImage={onSelectImage}
             />
           ))}
         </div>

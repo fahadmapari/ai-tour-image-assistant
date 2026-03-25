@@ -2,15 +2,15 @@ import type { NormalizedImage } from "@/types"
 
 interface ImageCardProps {
   image: NormalizedImage
+  onSelect: (image: NormalizedImage) => void
 }
 
-export function ImageCard({ image }: ImageCardProps) {
+export function ImageCard({ image, onSelect }: ImageCardProps) {
   return (
-    <a
-      href={image.sourceUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover-glow group block overflow-hidden rounded-lg border border-border transition-all"
+    <button
+      type="button"
+      onClick={() => onSelect(image)}
+      className="hover-glow group block w-full overflow-hidden rounded-lg border border-border text-left transition-all"
     >
       <div className="relative aspect-4/3 overflow-hidden">
         <img
@@ -36,6 +36,6 @@ export function ImageCard({ image }: ImageCardProps) {
           </p>
         </div>
       </div>
-    </a>
+    </button>
   )
 }

@@ -3,16 +3,18 @@ import { AppHeader } from "@/components/app-header"
 import { TourInput } from "@/components/tour-input"
 import { KeywordPanel } from "@/components/keyword-panel"
 import { ImageResults } from "@/components/image-results"
+import { ImageDetailModal } from "@/components/image-detail-modal"
 import { CollapsedBar } from "@/components/collapsed-bar"
 import { useKeywordExtraction } from "@/hooks/use-keyword-extraction"
 import { useImageSearch } from "@/hooks/use-image-search"
-import type { KeywordTier } from "@/types"
+import type { KeywordTier, NormalizedImage } from "@/types"
 
 function App() {
   const extraction = useKeywordExtraction()
   const imageSearch = useImageSearch()
   const [inputExpanded, setInputExpanded] = useState(true)
   const [tourExpanded, setTourExpanded] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<NormalizedImage | null>(null)
 
   const hasResults = imageSearch.status !== "idle"
   const hasKeywords = extraction.status === "success"
@@ -129,9 +131,14 @@ function App() {
             keywords={extraction.keywords}
             results={imageSearch.results}
             isLoading={imageSearch.status === "loading"}
+            onSelectImage={setSelectedImage}
           />
         </div>
       )}
+      <ImageDetailModal
+        image={selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
     </div>
   )
 }

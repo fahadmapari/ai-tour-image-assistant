@@ -6,12 +6,14 @@ interface ImageKeywordSectionProps {
   keyword: Keyword
   images: NormalizedImage[] | undefined
   isLoading: boolean
+  onSelectImage: (image: NormalizedImage) => void
 }
 
 export function ImageKeywordSection({
   keyword,
   images,
   isLoading,
+  onSelectImage,
 }: ImageKeywordSectionProps) {
   return (
     <div className="space-y-3">
@@ -39,7 +41,7 @@ export function ImageKeywordSection({
       ) : images && images.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
           {images.map((image) => (
-            <ImageCard key={image.id} image={image} />
+            <ImageCard key={image.id} image={image} onSelect={onSelectImage} />
           ))}
         </div>
       ) : (

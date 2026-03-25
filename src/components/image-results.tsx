@@ -1,13 +1,26 @@
+import { useEffect, useMemo, useState } from "react"
 import { ImageKeywordSection } from "./image-keyword-section"
 import { Button } from "@/components/ui/button"
+import {
+  getEnabledSources,
+  getImageSourceFilterLabel,
+  getImageSourceLabel,
+} from "@/lib/image-source"
 import { Search } from "lucide-react"
-import type { Keyword, NormalizedImage } from "@/types"
+import { cn } from "@/lib/utils"
+import type {
+  ImageSource,
+  ImageSourceFilter,
+  Keyword,
+  NormalizedImage,
+} from "@/types"
 
 interface ImageResultsProps {
   keywords: Keyword[]
   results: Map<string, NormalizedImage[]>
   hasMore: Map<string, boolean>
   loadingKeywords: Set<string>
+  sourceFilter: ImageSourceFilter
   tier2Searched: boolean
   onSelectImage: (image: NormalizedImage) => void
   isShortlisted: (image: NormalizedImage) => boolean
@@ -21,6 +34,7 @@ export function ImageResults({
   results,
   hasMore,
   loadingKeywords,
+  sourceFilter,
   tier2Searched,
   onSelectImage,
   isShortlisted,
@@ -30,9 +44,71 @@ export function ImageResults({
 }: ImageResultsProps) {
   const tier1Keywords = keywords.filter((k) => k.tier === 1)
   const tier2Keywords = keywords.filter((k) => k.tier === 2)
+  const availableSources = useMemo(
+    () => getEnabledSources(sourceFilter),
+    [sourceFilter]
+  )
+  const [visibleSources, setVisibleSources] = useState<ImageSource[]>(
+    availableSources
+  )
+
+  useEffect(() => {
+    setVisibleSources(availableSources)
+  }, [availableSources])
+
+  const toggleVisibleSource = (source: ImageSource) => {
+    if (!availableSources.includes(source)) return
+
+    setVisibleSources((current) =>
+      current.includes(source)
+        ? current.filter((item) => item !== source)
+        : [...current, source]
+    )
+  }
+
+  const filterImages = (images: NormalizedImage[] | undefined) =>
+    images?.filter((image) => visibleSources.includes(image.source))
 
   return (
     <div className="space-y-10 pt-2">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            View:
+          </span>
+          {(["pixabay", "unsplash"] as ImageSource[]).map((source) => {
+            const isAvailable = availableSources.includes(source)
+            const isVisible = visibleSources.includes(source)
+
+            return (
+              <Button
+                key={source}
+                type="button"
+                variant={isVisible ? "secondary" : "outline"}
+                size="sm"
+                disabled={!isAvailable}
+                onClick={() => toggleVisibleSource(source)}
+                className={cn(
+                  "rounded-full px-4",
+                  isVisible && "border-primary/20 bg-primary/10 text-primary"
+                )}
+              >
+                {getImageSourceLabel(source)}
+              </Button>
+            )
+          })}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            Searching:
+          </span>
+          <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium">
+            {getImageSourceFilterLabel(sourceFilter)}
+          </span>
+        </div>
+      </div>
+
       {tier1Keywords.length > 0 && (
         <div className="space-y-8">
           <p className="text-xs font-medium text-tier-1">
@@ -42,7 +118,7 @@ export function ImageResults({
             <ImageKeywordSection
               key={keyword.id}
               keyword={keyword}
-              images={results.get(keyword.id)}
+              images={filterImages(results.get(keyword.id))}
               isLoading={
                 loadingKeywords.has(keyword.id) && !results.has(keyword.id)
               }
@@ -89,7 +165,7 @@ export function ImageResults({
             <ImageKeywordSection
               key={keyword.id}
               keyword={keyword}
-              images={results.get(keyword.id)}
+              images={filterImages(results.get(keyword.id))}
               isLoading={
                 loadingKeywords.has(keyword.id) && !results.has(keyword.id)
               }

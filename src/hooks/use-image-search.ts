@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef } from "react"
 import { searchPixabay } from "@/lib/api/pixabay"
 import { searchUnsplash } from "@/lib/api/unsplash"
-import type { Keyword, NormalizedImage } from "@/types"
+import { getEnabledSources } from "@/lib/image-source"
+import type { ImageSearchResult, ImageSourceFilter, Keyword, NormalizedImage } from "@/types"
 
 type SearchStatus = "idle" | "loading" | "done"
 
@@ -16,77 +17,92 @@ export function useImageSearch() {
   const [status, setStatus] = useState<SearchStatus>("idle")
   const [tier2Searched, setTier2Searched] = useState(false)
   const pagesRef = useRef<Map<string, number>>(new Map())
+  const sourceFilterRef = useRef<ImageSourceFilter>("both")
 
-  const fetchKeywords = useCallback(async (keywords: Keyword[]) => {
-    setLoadingKeywords((prev) => {
-      const next = new Set(prev)
-      keywords.forEach((k) => next.add(k.id))
-      return next
-    })
+  const searchBySource = useCallback(
+    async (query: string, page = 1): Promise<ImageSearchResult[]> => {
+      const enabledSources = getEnabledSources(sourceFilterRef.current)
+      const searches = enabledSources.map((source) =>
+        source === "pixabay"
+          ? searchPixabay(query, page)
+          : searchUnsplash(query, page)
+      )
 
-    const allResults = await Promise.allSettled(
-      keywords.map(async (keyword) => {
-        const [pixabayResult, unsplashResult] = await Promise.allSettled([
-          searchPixabay(keyword.text),
-          searchUnsplash(keyword.text),
-        ])
+      const settledResults = await Promise.allSettled(searches)
 
-        const images: NormalizedImage[] = []
-        let total = 0
+      return settledResults.flatMap((result) =>
+        result.status === "fulfilled" ? [result.value] : []
+      )
+    },
+    []
+  )
 
-        if (pixabayResult.status === "fulfilled") {
-          images.push(...pixabayResult.value.images)
-          total += pixabayResult.value.total
-        }
-        if (unsplashResult.status === "fulfilled") {
-          images.push(...unsplashResult.value.images)
-          total += unsplashResult.value.total
-        }
-
-        return { keywordId: keyword.id, images, hasMore: total > images.length }
+  const fetchKeywords = useCallback(
+    async (keywords: Keyword[]) => {
+      setLoadingKeywords((prev) => {
+        const next = new Set(prev)
+        keywords.forEach((k) => next.add(k.id))
+        return next
       })
-    )
 
-    setResults((prev) => {
-      const next = new Map(prev)
+      const allResults = await Promise.allSettled(
+        keywords.map(async (keyword) => {
+          const sourceResults = await searchBySource(keyword.text)
+
+          const images = sourceResults.flatMap((result) => result.images)
+          const total = sourceResults.reduce((sum, result) => sum + result.total, 0)
+
+          return {
+            keywordId: keyword.id,
+            images,
+            hasMore: total > images.length,
+          }
+        })
+      )
+
+      setResults((prev) => {
+        const next = new Map(prev)
+        for (const result of allResults) {
+          if (result.status === "fulfilled") {
+            next.set(result.value.keywordId, result.value.images)
+          }
+        }
+        return next
+      })
+
+      setHasMore((prev) => {
+        const next = new Map(prev)
+        for (const result of allResults) {
+          if (result.status === "fulfilled") {
+            next.set(result.value.keywordId, result.value.hasMore)
+          }
+        }
+        return next
+      })
+
       for (const result of allResults) {
         if (result.status === "fulfilled") {
-          next.set(result.value.keywordId, result.value.images)
+          pagesRef.current.set(result.value.keywordId, 1)
         }
       }
-      return next
-    })
 
-    setHasMore((prev) => {
-      const next = new Map(prev)
-      for (const result of allResults) {
-        if (result.status === "fulfilled") {
-          next.set(result.value.keywordId, result.value.hasMore)
-        }
-      }
-      return next
-    })
-
-    for (const result of allResults) {
-      if (result.status === "fulfilled") {
-        pagesRef.current.set(result.value.keywordId, 1)
-      }
-    }
-
-    setLoadingKeywords((prev) => {
-      const next = new Set(prev)
-      keywords.forEach((k) => next.delete(k.id))
-      return next
-    })
-  }, [])
+      setLoadingKeywords((prev) => {
+        const next = new Set(prev)
+        keywords.forEach((k) => next.delete(k.id))
+        return next
+      })
+    },
+    [searchBySource]
+  )
 
   const search = useCallback(
-    async (keywords: Keyword[]) => {
+    async (keywords: Keyword[], sourceFilter: ImageSourceFilter) => {
       setStatus("loading")
       setResults(new Map())
       setHasMore(new Map())
       setTier2Searched(false)
       pagesRef.current = new Map()
+      sourceFilterRef.current = sourceFilter
 
       const tier1 = keywords.filter((k) => k.tier === 1)
       await fetchKeywords(tier1)
@@ -110,19 +126,10 @@ export function useImageSearch() {
 
     setLoadingKeywords((prev) => new Set(prev).add(keyword.id))
 
-    const [pixabayResult, unsplashResult] = await Promise.allSettled([
-      searchPixabay(keyword.text, nextPage),
-      searchUnsplash(keyword.text, nextPage),
-    ])
-
-    const newImages: NormalizedImage[] = []
-
-    if (pixabayResult.status === "fulfilled") {
-      newImages.push(...pixabayResult.value.images)
-    }
-    if (unsplashResult.status === "fulfilled") {
-      newImages.push(...unsplashResult.value.images)
-    }
+    const sourceResults = await searchBySource(keyword.text, nextPage)
+    const newImages: NormalizedImage[] = sourceResults.flatMap(
+      (result) => result.images
+    )
 
     setResults((prev) => {
       const next = new Map(prev)
@@ -139,7 +146,7 @@ export function useImageSearch() {
       next.delete(keyword.id)
       return next
     })
-  }, [])
+  }, [searchBySource])
 
   const reset = useCallback(() => {
     setResults(new Map())
@@ -148,6 +155,7 @@ export function useImageSearch() {
     setStatus("idle")
     setTier2Searched(false)
     pagesRef.current = new Map()
+    sourceFilterRef.current = "both"
   }, [])
 
   return {

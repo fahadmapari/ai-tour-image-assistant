@@ -1,4 +1,6 @@
 export type KeywordTier = 1 | 2
+export type ImageSource = "pixabay" | "unsplash"
+export type ImageSourceFilter = ImageSource | "both"
 
 export interface Keyword {
   id: string
@@ -72,7 +74,7 @@ export interface NormalizedImage {
   thumbnailUrl: string
   fullUrl: string
   sourceUrl: string
-  source: "pixabay" | "unsplash"
+  source: ImageSource
   photographer: string
   photographerUrl: string
   width: number

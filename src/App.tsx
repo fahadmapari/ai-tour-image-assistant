@@ -9,7 +9,12 @@ import { ShortlistSheet } from "@/components/shortlist-sheet"
 import { SavedImageGroups } from "@/components/saved-image-groups"
 import { useKeywordExtraction } from "@/hooks/use-keyword-extraction"
 import { useImageSearch } from "@/hooks/use-image-search"
-import type { KeywordTier, NormalizedImage, SavedImageGroup } from "@/types"
+import type {
+  ImageSourceFilter,
+  KeywordTier,
+  NormalizedImage,
+  SavedImageGroup,
+} from "@/types"
 
 const SAVED_IMAGES_STORAGE_KEY = "image-assistant-saved-groups"
 
@@ -42,6 +47,10 @@ function App() {
   const [isShortlistOpen, setIsShortlistOpen] = useState(false)
   const [activeView, setActiveView] = useState<"search" | "saved">("search")
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [selectedSourceFilter, setSelectedSourceFilter] =
+    useState<ImageSourceFilter>("both")
+  const [appliedSourceFilter, setAppliedSourceFilter] =
+    useState<ImageSourceFilter>("both")
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -75,7 +84,8 @@ function App() {
   }
 
   const handleSearch = () => {
-    imageSearch.search(extraction.keywords)
+    setAppliedSourceFilter(selectedSourceFilter)
+    imageSearch.search(extraction.keywords, selectedSourceFilter)
     setInputExpanded(false)
     setActiveView("search")
   }
@@ -91,6 +101,8 @@ function App() {
     setTourExpanded(true)
     setSelectedImage(null)
     setActiveView("search")
+    setSelectedSourceFilter("both")
+    setAppliedSourceFilter("both")
   }
 
   const toggleShortlist = (image: NormalizedImage) => {
@@ -190,6 +202,7 @@ function App() {
                 imageSearch.status === "loading" ||
                 imageSearch.loadingKeywords.size > 0
               }
+              sourceFilter={appliedSourceFilter}
               onExpand={() => setInputExpanded(true)}
             />
           )}
@@ -231,8 +244,10 @@ function App() {
                 <div className="mt-6">
                   <KeywordPanel
                     keywords={extraction.keywords}
+                    sourceFilter={selectedSourceFilter}
                     onRemove={extraction.removeKeyword}
                     onAdd={handleAddKeyword}
+                    onSourceFilterChange={setSelectedSourceFilter}
                     onSearch={handleSearch}
                     isSearching={imageSearch.status === "loading"}
                   />
@@ -261,6 +276,7 @@ function App() {
                 results={imageSearch.results}
                 hasMore={imageSearch.hasMore}
                 loadingKeywords={imageSearch.loadingKeywords}
+                sourceFilter={appliedSourceFilter}
                 tier2Searched={imageSearch.tier2Searched}
                 onSelectImage={setSelectedImage}
                 isShortlisted={(image) => shortlistedKeys.has(getImageKey(image))}

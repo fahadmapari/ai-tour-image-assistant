@@ -1,20 +1,26 @@
 import { KeywordTierSection } from "./keyword-tier-section"
 import { Button } from "@/components/ui/button"
+import { getImageSourceFilterLabel, IMAGE_SOURCE_FILTER_OPTIONS } from "@/lib/image-source"
 import { Search, Loader2 } from "lucide-react"
-import type { Keyword, KeywordTier } from "@/types"
+import { cn } from "@/lib/utils"
+import type { ImageSourceFilter, Keyword, KeywordTier } from "@/types"
 
 interface KeywordPanelProps {
   keywords: Keyword[]
+  sourceFilter: ImageSourceFilter
   onRemove: (id: string) => void
   onAdd: (text: string, tier: KeywordTier) => void
+  onSourceFilterChange: (filter: ImageSourceFilter) => void
   onSearch: () => void
   isSearching: boolean
 }
 
 export function KeywordPanel({
   keywords,
+  sourceFilter,
   onRemove,
   onAdd,
+  onSourceFilterChange,
   onSearch,
   isSearching,
 }: KeywordPanelProps) {
@@ -28,6 +34,36 @@ export function KeywordPanel({
         <p className="text-sm text-muted-foreground">
           Edit keywords before searching. Add or remove as needed.
         </p>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-medium">Image Sources</h3>
+          <p className="text-sm text-muted-foreground">
+            Choose whether to search Pixabay, Unsplash, or both.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {IMAGE_SOURCE_FILTER_OPTIONS.map((option) => {
+            const isActive = option === sourceFilter
+
+            return (
+              <Button
+                key={option}
+                type="button"
+                variant={isActive ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => onSourceFilterChange(option)}
+                className={cn(
+                  "rounded-full px-4",
+                  isActive && "border-primary/20 bg-primary/10 text-primary"
+                )}
+              >
+                {getImageSourceFilterLabel(option)}
+              </Button>
+            )
+          })}
+        </div>
       </div>
 
       <KeywordTierSection

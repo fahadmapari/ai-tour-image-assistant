@@ -10,29 +10,31 @@ export function ImageCard({ image }: ImageCardProps) {
       href={image.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block border-2 border-border bg-card transition-colors hover:border-primary"
+      className="hover-glow group block overflow-hidden rounded-lg border border-border transition-all"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <img
           src={image.thumbnailUrl}
           alt={image.description || "Image"}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        {/* Source badge */}
         <span
-          className={`absolute top-2 right-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+          className={`absolute top-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium ${
             image.source === "pixabay"
-              ? "bg-emerald-500/90 text-white"
-              : "bg-white/90 text-black"
+              ? "bg-emerald-500/80 text-white"
+              : "bg-white/80 text-black backdrop-blur-sm"
           }`}
         >
           {image.source}
         </span>
-      </div>
-      <div className="border-t-2 border-border px-3 py-2">
-        <p className="truncate text-xs text-muted-foreground">
-          {image.photographer}
-        </p>
+        {/* Photographer overlay on hover */}
+        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-2.5 pb-2 pt-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <p className="truncate text-xs text-white/90">
+            {image.photographer}
+          </p>
+        </div>
       </div>
     </a>
   )

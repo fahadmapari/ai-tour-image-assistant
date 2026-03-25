@@ -13,18 +13,18 @@ export function KeywordPill({ text, tier, onRemove }: KeywordPillProps) {
     <Badge
       variant="outline"
       className={`
-        inline-flex items-center gap-1.5 border-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider
+        inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium
         ${
           tier === 1
-            ? "border-tier-1/40 bg-tier-1-bg text-tier-1"
-            : "border-tier-2/40 bg-tier-2-bg text-tier-2"
+            ? "border-tier-1/30 bg-tier-1-bg text-tier-1"
+            : "border-tier-2/30 bg-tier-2-bg text-tier-2"
         }
       `}
     >
       {text}
       <button
         onClick={onRemove}
-        className="ml-1 rounded-sm opacity-60 hover:opacity-100 transition-opacity"
+        className="ml-0.5 rounded-sm opacity-50 transition-opacity hover:opacity-100"
         aria-label={`Remove ${text}`}
       >
         <X className="h-3 w-3" />

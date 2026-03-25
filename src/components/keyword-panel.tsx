@@ -22,9 +22,9 @@ export function KeywordPanel({
   const tier2 = keywords.filter((k) => k.tier === 2)
 
   return (
-    <div className="space-y-6 border-2 border-border p-6">
+    <div className="space-y-6 rounded-xl border border-border bg-card p-6">
       <div>
-        <h2 className="text-lg font-bold tracking-tight">Keywords</h2>
+        <h2 className="text-base font-semibold">Keywords</h2>
         <p className="text-sm text-muted-foreground">
           Edit keywords before searching. Add or remove as needed.
         </p>
@@ -39,7 +39,7 @@ export function KeywordPanel({
         onAdd={onAdd}
       />
 
-      <div className="border-t-2 border-border" />
+      <div className="border-t border-border" />
 
       <KeywordTierSection
         tier={2}
@@ -53,7 +53,7 @@ export function KeywordPanel({
       <Button
         onClick={onSearch}
         disabled={isSearching || keywords.length === 0}
-        className="w-full border-2 border-primary font-semibold uppercase tracking-wider"
+        className="btn-gradient w-full rounded-xl border-0 text-sm font-medium text-white"
         size="lg"
       >
         {isSearching ? (

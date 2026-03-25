@@ -1,19 +1,26 @@
 import { ImageCard } from "./image-card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import type { Keyword, NormalizedImage } from "@/types"
 
 interface ImageKeywordSectionProps {
   keyword: Keyword
   images: NormalizedImage[] | undefined
   isLoading: boolean
+  isLoadingMore: boolean
+  hasMore: boolean
   onSelectImage: (image: NormalizedImage) => void
+  onLoadMore: () => void
 }
 
 export function ImageKeywordSection({
   keyword,
   images,
   isLoading,
+  isLoadingMore,
+  hasMore,
   onSelectImage,
+  onLoadMore,
 }: ImageKeywordSectionProps) {
   return (
     <div className="space-y-3">
@@ -39,11 +46,29 @@ export function ImageKeywordSection({
           ))}
         </div>
       ) : images && images.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-          {images.map((image) => (
-            <ImageCard key={image.id} image={image} onSelect={onSelectImage} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
+            {images.map((image) => (
+              <ImageCard
+                key={image.id}
+                image={image}
+                onSelect={onSelectImage}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onLoadMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? "Loading…" : "Load More"}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <p className="rounded-lg border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
           No images found for this keyword.

@@ -4,5 +4,5 @@ export const CONFIG = {
   workerUrl: import.meta.env.VITE_WORKER_URL as string,
   pixabayBaseUrl: "https://pixabay.com/api/",
   unsplashBaseUrl: "https://api.unsplash.com",
-  imagesPerPage: 12,
+  imagesPerPage: 6,
 } as const

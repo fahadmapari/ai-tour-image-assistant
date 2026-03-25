@@ -39,6 +39,10 @@ function App() {
     setInputExpanded(false)
   }
 
+  const handleSearchTier2 = () => {
+    imageSearch.searchTier2(extraction.keywords)
+  }
+
   const handleNewSearch = () => {
     extraction.reset()
     imageSearch.reset()
@@ -60,7 +64,7 @@ function App() {
         <CollapsedBar
           keywords={extraction.keywords}
           totalImages={totalImages}
-          isLoading={imageSearch.status === "loading"}
+          isLoading={imageSearch.status === "loading" || imageSearch.loadingKeywords.size > 0}
           onExpand={() => setInputExpanded(true)}
         />
       )}
@@ -130,8 +134,12 @@ function App() {
           <ImageResults
             keywords={extraction.keywords}
             results={imageSearch.results}
-            isLoading={imageSearch.status === "loading"}
+            hasMore={imageSearch.hasMore}
+            loadingKeywords={imageSearch.loadingKeywords}
+            tier2Searched={imageSearch.tier2Searched}
             onSelectImage={setSelectedImage}
+            onSearchTier2={handleSearchTier2}
+            onLoadMore={imageSearch.loadMore}
           />
         </div>
       )}

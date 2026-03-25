@@ -10,6 +10,8 @@ interface ImageResultsProps {
   loadingKeywords: Set<string>
   tier2Searched: boolean
   onSelectImage: (image: NormalizedImage) => void
+  isShortlisted: (image: NormalizedImage) => boolean
+  onToggleShortlist: (image: NormalizedImage) => void
   onSearchTier2: () => void
   onLoadMore: (keyword: Keyword) => void
 }
@@ -21,12 +23,13 @@ export function ImageResults({
   loadingKeywords,
   tier2Searched,
   onSelectImage,
+  isShortlisted,
+  onToggleShortlist,
   onSearchTier2,
   onLoadMore,
 }: ImageResultsProps) {
   const tier1Keywords = keywords.filter((k) => k.tier === 1)
   const tier2Keywords = keywords.filter((k) => k.tier === 2)
-  const isTier2Loading = tier2Keywords.some((k) => loadingKeywords.has(k.id))
 
   return (
     <div className="space-y-10 pt-2">
@@ -48,6 +51,8 @@ export function ImageResults({
               }
               hasMore={hasMore.get(keyword.id) ?? false}
               onSelectImage={onSelectImage}
+              isShortlisted={isShortlisted}
+              onToggleShortlist={onToggleShortlist}
               onLoadMore={() => onLoadMore(keyword)}
             />
           ))}
@@ -93,6 +98,8 @@ export function ImageResults({
               }
               hasMore={hasMore.get(keyword.id) ?? false}
               onSelectImage={onSelectImage}
+              isShortlisted={isShortlisted}
+              onToggleShortlist={onToggleShortlist}
               onLoadMore={() => onLoadMore(keyword)}
             />
           ))}

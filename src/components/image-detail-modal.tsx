@@ -1,13 +1,30 @@
 import { useEffect, useCallback } from "react"
-import { X, ExternalLink, Camera, Ruler, Tag, FileText } from "lucide-react"
+import {
+  X,
+  ExternalLink,
+  Camera,
+  Ruler,
+  Tag,
+  FileText,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { NormalizedImage } from "@/types"
 
 interface ImageDetailModalProps {
   image: NormalizedImage | null
+  isShortlisted: boolean
   onClose: () => void
+  onToggleShortlist: (image: NormalizedImage) => void
 }
 
-export function ImageDetailModal({ image, onClose }: ImageDetailModalProps) {
+export function ImageDetailModal({
+  image,
+  isShortlisted,
+  onClose,
+  onToggleShortlist,
+}: ImageDetailModalProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose()
@@ -131,8 +148,19 @@ export function ImageDetailModal({ image, onClose }: ImageDetailModalProps) {
             </div>
           )}
 
-          {/* View on source */}
-          <div className="mt-auto pt-4">
+          <div className="mt-auto space-y-3 pt-4">
+            <Button
+              variant={isShortlisted ? "secondary" : "outline"}
+              className="w-full"
+              onClick={() => onToggleShortlist(image)}
+            >
+              {isShortlisted ? (
+                <BookmarkCheck className="h-4 w-4" />
+              ) : (
+                <Bookmark className="h-4 w-4" />
+              )}
+              {isShortlisted ? "Shortlisted" : "Shortlist Image"}
+            </Button>
             <a
               href={image.sourceUrl}
               target="_blank"

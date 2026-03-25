@@ -1,11 +1,20 @@
+import { Bookmark, BookmarkCheck } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import type { NormalizedImage } from "@/types"
 
 interface ImageCardProps {
   image: NormalizedImage
+  isShortlisted: boolean
   onSelect: (image: NormalizedImage) => void
+  onToggleShortlist: (image: NormalizedImage) => void
 }
 
-export function ImageCard({ image, onSelect }: ImageCardProps) {
+export function ImageCard({
+  image,
+  isShortlisted,
+  onSelect,
+  onToggleShortlist,
+}: ImageCardProps) {
   return (
     <button
       type="button"
@@ -19,6 +28,25 @@ export function ImageCard({ image, onSelect }: ImageCardProps) {
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
+        <div className="absolute top-1.5 left-1.5 z-10">
+          <Button
+            variant={isShortlisted ? "default" : "secondary"}
+            size="icon-sm"
+            onClick={(event) => {
+              event.stopPropagation()
+              onToggleShortlist(image)
+            }}
+            aria-label={
+              isShortlisted ? "Remove from shortlist" : "Add to shortlist"
+            }
+          >
+            {isShortlisted ? (
+              <BookmarkCheck className="h-3.5 w-3.5" />
+            ) : (
+              <Bookmark className="h-3.5 w-3.5" />
+            )}
+          </Button>
+        </div>
         {/* Source badge */}
         <span
           className={`absolute top-1.5 right-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium ${

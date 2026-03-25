@@ -81,6 +81,13 @@ export interface NormalizedImage {
   description: string | null
 }
 
+export interface SavedImageGroup {
+  id: string
+  name: string
+  createdAt: string
+  images: NormalizedImage[]
+}
+
 export interface ImageSearchResult {
   images: NormalizedImage[]
   total: number

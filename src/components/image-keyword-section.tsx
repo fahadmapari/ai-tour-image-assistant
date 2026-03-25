@@ -12,6 +12,8 @@ interface ImageKeywordSectionProps {
   isLoadingMore: boolean
   hasMore: boolean
   onSelectImage: (image: NormalizedImage) => void
+  isShortlisted: (image: NormalizedImage) => boolean
+  onToggleShortlist: (image: NormalizedImage) => void
   onLoadMore: () => void
 }
 
@@ -22,6 +24,8 @@ export function ImageKeywordSection({
   isLoadingMore,
   hasMore,
   onSelectImage,
+  isShortlisted,
+  onToggleShortlist,
   onLoadMore,
 }: ImageKeywordSectionProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -67,7 +71,9 @@ export function ImageKeywordSection({
                   <ImageCard
                     key={image.id}
                     image={image}
+                    isShortlisted={isShortlisted(image)}
                     onSelect={onSelectImage}
+                    onToggleShortlist={onToggleShortlist}
                   />
                 ))}
               </div>

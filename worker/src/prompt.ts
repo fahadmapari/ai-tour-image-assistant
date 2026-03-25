@@ -7,6 +7,8 @@ You must return keywords in two tiers:
 - These are the exact locations and sites mentioned in the tour
 - Use English names optimized for stock photo search (e.g., "Munich Cathedral" instead of "Frauenkirche", "Eiffel Tower" instead of "Tour Eiffel")
 - Include the city/region name as a keyword
+- For landmarks, monuments, museums, churches, palaces, squares, stations, and other potentially ambiguous places, prefer a disambiguated search phrase that combines the place with its city or region (e.g., "Bern Federal Palace", "Lucerne Chapel Bridge", "Zurich Old Town")
+- If the attraction is already globally unique, you may use the attraction name alone, but default to adding the city when it improves search precision on stock photo sites
 
 **Tier 2 - Related (thematic and contextual):**
 - Related topics, themes, cultural elements, architectural styles
@@ -19,7 +21,8 @@ You must return keywords in two tiers:
 - Tier 1: 3-8 keywords
 - Tier 2: 3-8 keywords
 - Keywords should be terms likely to match image tags, titles, descriptions, or location metadata on stock photo sites
-- Keep keywords concise (1-3 words each)
+- Tier 1 should prioritize precise place-search phrases over shorter but ambiguous names
+- Keep keywords concise, but allow 2-4 words when needed for location disambiguation
 - Use English for all keywords
 - Do not duplicate keywords across tiers
 

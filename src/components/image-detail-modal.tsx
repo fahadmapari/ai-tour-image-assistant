@@ -75,7 +75,7 @@ export function ImageDetailModal({
         </div>
 
         {/* Info panel */}
-        <div className="flex w-full flex-col overflow-y-auto border-t border-border p-5 sm:w-80 sm:min-w-72 sm:border-t-0 sm:border-l">
+        <div className="flex w-full flex-col border-t border-border p-5 sm:w-80 sm:min-w-72 sm:border-t-0 sm:border-l">
           {/* Source badge */}
           <span
             className={`mb-4 inline-flex w-fit rounded-md px-2 py-0.5 text-xs font-medium ${
@@ -94,9 +94,11 @@ export function ImageDetailModal({
                 <FileText className="h-3.5 w-3.5" />
                 Description
               </div>
-              <p className="text-sm leading-relaxed text-foreground">
-                {image.description}
-              </p>
+              <div className="scrollbar-sleek max-h-40 overflow-y-auto pr-1">
+                <p className="text-sm leading-relaxed text-foreground">
+                  {image.description}
+                </p>
+              </div>
             </div>
           )}
 
@@ -135,15 +137,17 @@ export function ImageDetailModal({
                 <Tag className="h-3.5 w-3.5" />
                 Tags
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {image.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="scrollbar-sleek max-h-40 overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5">
+                  {image.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           )}

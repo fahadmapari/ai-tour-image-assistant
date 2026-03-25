@@ -174,3 +174,37 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Sleek custom scrollbar */
+.scrollbar-sleek {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.55 0 0 / 45%) transparent;
+}
+
+.scrollbar-sleek::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    oklch(0.7 0 0 / 55%),
+    oklch(0.45 0 0 / 55%)
+  );
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.scrollbar-sleek::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    oklch(0.78 0 0 / 70%),
+    oklch(0.55 0 0 / 70%)
+  );
+  background-clip: padding-box;
+}

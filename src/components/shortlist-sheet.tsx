@@ -94,7 +94,7 @@ export function ShortlistSheet({
               )}
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-col">
               {images.length > 0 ? (
                 <>
                   <div className="flex items-center justify-between px-5 py-3">
@@ -106,7 +106,7 @@ export function ShortlistSheet({
                       Clear
                     </Button>
                   </div>
-                  <div className="grid flex-1 grid-cols-2 gap-3 overflow-y-auto px-5 pb-5">
+                  <div className="grid max-h-[calc(100vh-13.5rem)] grid-cols-2 gap-3 overflow-y-auto px-5 pb-5">
                     {images.map((image) => (
                       <div
                         key={`${image.source}-${image.id}`}
